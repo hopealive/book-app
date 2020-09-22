@@ -14,12 +14,10 @@ switch($argv[1]){
             $command->register();
         } catch (TypeError $e){
             echo "ERROR. Wrong arguments";
-var_dump($e->getMessage());//todo
         } catch (UserException $e) {
             echo "ERROR. ".$e->getMessage();
         } catch (Exception $e){
             echo "ERROR. Error while creating new user";
-var_dump($e->getMessage());//todo
         }
     break;
 }
