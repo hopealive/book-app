@@ -14,27 +14,34 @@ services:
         ports:
             - "8080:80"
         volumes:
-            - ./app:/var/www/html:delegated
+            - ./www:/var/www/html:delegated
         depends_on:
             - php
-            - mysql
+            - db
+            - redis
         networks:
             - book-network
 
-    mysql:
-        image: mysql:latest
-        container_name: book_mysql
-        restart: unless-stopped
-        tty: true
+    db:
+        image: mysql:5.7
+        container_name: book_db
         ports:
-            - "3306:3306"
+            - '3306:3306'
         environment:
-            MYSQL_DATABASE: bookdb
-            MYSQL_USER: bookuser
-            MYSQL_PASSWORD: secret
-            MYSQL_ROOT_PASSWORD: secret
-            SERVICE_TAGS: dev
-            SERVICE_NAME: mysql
+            MYSQL_DATABASE: 'bookdb'
+            MYSQL_USER: 'bookuser'
+            MYSQL_PASSWORD: 'bookusersecret'
+            MYSQL_ROOT_PASSWORD: 'bookrootusersecret'
+        restart: always
+        networks:
+            - book-network
+
+    adminer:
+        image: adminer
+        container_name: book_adminer
+        restart: always
+        ports:
+            - 8081:8080
         networks:
             - book-network
 
@@ -45,9 +52,15 @@ services:
         image: book/php
         container_name: book_php
         volumes:
-            - ./app:/var/www/html:delegated
+            - ./www:/var/www/html:delegated
         ports:
             - "9000:9000"
+        networks:
+            - book-network
+
+    redis:
+        image: redis:alpine
+        container_name: book_redis
         networks:
             - book-network
 
