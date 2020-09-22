@@ -1,0 +1,53 @@
+version: '3'
+
+networks:
+    book-network:
+
+services:
+
+    nginx:
+        build:
+            context: .
+            dockerfile: ./images/nginx.dockerfile
+        image: book/nginx
+        container_name: book_nginx
+        ports:
+            - "8080:80"
+        volumes:
+            - ./app:/var/www/html:delegated
+        depends_on:
+            - php
+            - mysql
+        networks:
+            - book-network
+
+    mysql:
+        image: mysql:latest
+        container_name: book_mysql
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: bookdb
+            MYSQL_USER: bookuser
+            MYSQL_PASSWORD: secret
+            MYSQL_ROOT_PASSWORD: secret
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        networks:
+            - book-network
+
+    php:
+        build:
+            context: .
+            dockerfile: ./images/php.dockerfile
+        image: book/php
+        container_name: book_php
+        volumes:
+            - ./app:/var/www/html:delegated
+        ports:
+            - "9000:9000"
+        networks:
+            - book-network
+
