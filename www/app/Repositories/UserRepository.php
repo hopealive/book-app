@@ -44,5 +44,4 @@ class UserRepository implements UserRepositoryInterface
             $tx->hmset('user:'.$id, $userData);
         });
     }
-
 }

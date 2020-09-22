@@ -33,14 +33,13 @@ class AppController
      */
     public function login()
     {
+        if (!empty($_POST)) {
+            $this->user = (new Auth())->login();
+        }
+
         if (!empty($this->user)) {
             header("Location: /");
             exit();
-        }
-
-        if (!empty($_POST)) {
-            $auth = new Auth();
-            $auth->login();
         }
         include($this->_viewsFolder . 'login.php');
     }
