@@ -3,12 +3,15 @@
 namespace App\Controllers;
 
 use App\Entities\Book;
+use App\Entities\BookRow;
 use App\Lib\BookFile;
+use App\Lib\Readers\BookReader;
 use App\Repositories\UserRepository;
 use App\Middleware\Auth;
 use App\Lib\View;
+
+use Carbon\Carbon;
 use Exception;
-use App\Exceptions\UserException;
 
 class AppController
 {
@@ -16,7 +19,8 @@ class AppController
 
     public function __construct()
     {
-        $this->user = (new UserRepository)->getUserById((int)$_SESSION['userId']);
+        $userId = (int) $_SESSION['userId'] ?? 0;
+        $this->user = (new UserRepository)->getUserById($userId);
     }
 
     public function index()
@@ -31,7 +35,7 @@ class AppController
             exit();
         }
         $errors = $_SESSION['errors'] ?? '';
-        $_SESSION['errors'] = '';
+        unset($_SESSION['errors']);
         $books = Book::where('user_id', $this->user['id'])->get();
         View::render('library', compact('books', 'errors'));
     }
@@ -45,11 +49,44 @@ class AppController
         }
         $books = Book::where('user_id', $this->user['id'])->get();
         $book = $books->find($id);
-        if(empty($book)){
+        if (empty($book)) {
             header("Location: /401");
             exit();
         }
-        View::render('library', compact('books', 'book'));
+
+        $countRows = BookRow::where('book_id', $id)->count();
+
+        $connection = (new Book())->getConnection();
+        $query = 'SELECT c.content FROM book_rows r
+            LEFT JOIN book_contents c ON c.id = r.row_id
+            WHERE book_id = ?
+            ORDER BY r.order ASC
+            LIMIT 100';
+        $content = $connection->select($query, [$id]);
+
+        View::render('library', compact('books', 'book', 'content', 'countRows'));
+    }
+
+    public function more()
+    {
+        $id = $_GET['id'] ?? 0;
+        if (empty($id) || empty($this->user)) {
+            header("Location: /401");
+            exit();
+        }
+
+        $book = Book::find($id);
+        if (empty($book) || $book->user_id != $this->user['id']) {
+            header("Location: /401");
+            exit();
+        }
+
+        $content = new BookReader($id);
+
+        header("Content-Type: text/plain");
+        foreach ($content->rows() as $row) {
+            echo $row . "\n";
+        }
     }
 
     /**
@@ -73,12 +110,15 @@ class AppController
                 $result =  $bookFile->save();
                 if (!$result) $errors[] = 'Error while saving file';
             } catch (Exception $e) {
-                $errors[] = 'Error while saving file';
+                $errors[] = 'Critical error while saving file';
             }
-            if(empty($errors)){
+            if (empty($errors)) {
+                $exists = Book::where('name', $bookFile->getName())->count();
+                $name = $bookFile->getName();
+                if ($exists) $name .= ' (' . Carbon::now()->format('Y-m-d H:i:s') . ')';
                 Book::firstOrCreate([
                     'user_id' => $this->user['id'],
-                    'name' => $bookFile->getName(),
+                    'name' => $name,
                     'filename' => $bookFile->getFileName(),
                     'status' => Book::BOOK_STATUS_WAITING_START,
                 ]);
@@ -87,10 +127,7 @@ class AppController
 
         if (!empty($errors)) {
             $_SESSION['errors'] = implode(',', $errors);
-            header("Location: /library");
-            exit();
         }
-
         View::render('upload');
     }
 
@@ -102,12 +139,13 @@ class AppController
         if (!empty($_POST)) {
             $this->user = (new Auth())->login();
         }
+
         if (!empty($this->user)) {
             header("Location: /");
             exit();
         }
         $errors = $_SESSION['errors'] ?? '';
-        $_SESSION['errors'] = '';
+        unset($_SESSION['errors']);
         View::render('login', compact('errors'));
     }
 

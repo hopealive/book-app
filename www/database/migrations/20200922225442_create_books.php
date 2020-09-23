@@ -9,7 +9,7 @@ final class CreateBooks extends Migration
     public function up() {
         $this->schema->create('books', function(Illuminate\Database\Schema\Blueprint $table){
             $table->increments('id');
-            $table->integer('user_id');
+            $table->integer('user_id')->index();
             $table->string('name');
             $table->string('filename');
             $table->enum('status', [

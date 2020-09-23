@@ -13,7 +13,8 @@ class BookReader implements ReaderInterface
         $connection = (new Book())->getConnection();
         $query = 'SELECT c.content FROM book_rows r
             LEFT JOIN book_contents c ON c.id = r.row_id
-            WHERE book_id = ?';
+            WHERE book_id = ?
+            ORDER BY r.order ASC';
         $this->_raw = $connection->select($query, [$id]);
     }
 

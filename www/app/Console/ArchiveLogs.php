@@ -9,10 +9,6 @@ class ArchiveLogs
 {
     const CHUNK_SIZE = 100;
 
-    public function __construct()
-    {
-    }
-
     /**
      * Move old logs from logs to archive
      */

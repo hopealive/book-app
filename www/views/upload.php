@@ -18,5 +18,12 @@
 
 <body class="text-center">
     <div class="loader">Loading...</div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            window.location = '/library';
+        });
+    </script>
 </body>
+
 </html>
