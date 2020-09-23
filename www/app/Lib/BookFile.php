@@ -40,8 +40,6 @@ class BookFile
             if(!$result) return false;
         } catch (Exception $e){
             return false;
-        } catch (ErrorException $e){
-            die('ErrorException');//todo
         }
         return true;
     }
