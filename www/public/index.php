@@ -1,21 +1,25 @@
 <?php
 session_start();
-require_once __DIR__.'/../vendor/autoload.php';
+error_reporting(0);
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use App\Controllers\AppController;
+use App\Controllers\ErrorsController;
+use App\Entities\Database;
+
+
+new Database();
 
 $controller = new AppController();
 $action = str_replace('/', '', $_SERVER['REQUEST_URI']);
-if(empty($action)) $action = 'index';
-if (!empty($action) && preg_match("/[^a-z0-9-]/i", $action)){
-    $controller->error404();
+if (empty($action)) $action = 'index';
+if (!empty($action) && preg_match("/[^a-z0-9-]/i", $action)) {
+    (new ErrorsController())->error404();
     exit();
 }
 
-if (method_exists($controller, $action)){
+if (method_exists($controller, $action)) {
     $controller->$action();
     exit();
 }
-$controller->error404();
-
-
+(new ErrorsController())->error404();

@@ -8,7 +8,6 @@
     <meta name="author" content="Greg Zorb <websitegdp@gmail.com>">
     <title>Book Cafe</title>
 
-
     <link rel="stylesheet" href="landing/css/linearicons.css">
     <link rel="stylesheet" href="landing/css/owl.carousel.css">
     <link rel="stylesheet" href="landing/css/font-awesome.min.css">
@@ -38,7 +37,7 @@
                         <?php endif; ?>
 
                         <?php if ($isRegistered) : ?>
-                            <li class="menu-has-children"><a href=""><?= $this->user['login'] ?? '' ?></a>
+                            <li class="menu-has-children"><a href=""><?= $user['login'] ?? '' ?></a>
                                 <ul>
                                     <li><a href="/library">Library</a></li>
                                     <li><a href="/logout">Logout</a></li>

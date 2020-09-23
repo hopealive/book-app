@@ -14,7 +14,9 @@ class UserRepository implements UserRepositoryInterface
 
     public function getUserById(int $userId) : array
     {
-        return $this->_client->hgetall('user:'.$userId);
+        $user = $this->_client->hgetall('user:'.$userId);
+        if(!empty($user)) $user['id'] = $userId;
+        return $user;
     }
 
     public function getUserIdByEmail(string $email) : int

@@ -2,13 +2,16 @@
 
 namespace App\Controllers;
 
+use App\Entities\Book;
+use App\Lib\BookFile;
 use App\Repositories\UserRepository;
 use App\Middleware\Auth;
+use App\Lib\View;
+use Exception;
 
 class AppController
 {
-    private $user = [],
-        $_viewsFolder = __DIR__ . '/../../views/';
+    private $user = [];
 
     public function __construct()
     {
@@ -17,15 +20,53 @@ class AppController
 
     public function index()
     {
-        $action = 'home';
-        $viewsFolder = __DIR__ . '/../../views/';
-        if (!file_exists($viewsFolder . $action . '.php')) {
-            header("HTTP/1.0 404 Not Found");
-            echo "<h1>404</h1>";
+        View::render('home', ['user' => $this->user, 'isRegistered' => !empty($this->user)]);
+    }
+
+    public function library()
+    {
+        if (empty($this->user)) {
+            header("Location: /401");
             exit();
         }
-        $isRegistered = !empty($this->user);
-        include($viewsFolder . $action . '.php');
+        $errors = $_SESSION['errors'] ?? '';
+        $_SESSION['errors'] = '';
+        $books = Book::where('user_id', $this->user['id'])->get();
+        View::render('library', compact('books', 'errors'));
+    }
+
+    /**
+     * Save and process upload file
+     */
+    public function upload()
+    {
+        if (empty($this->user)) {
+            header("Location: /401");
+            exit();
+        }
+
+        $errors = [];
+        if (!empty($_FILES) && !empty($_FILES['book'])) {
+            $bookFile = new BookFile($_FILES['book']);
+            $validation = $bookFile->validate();
+            if (empty($validation['success'])) {
+                $errors[] = $validation['message'] ?? 'Wrong file';
+            }
+            try {
+                $result =  $bookFile->save();
+                if (!$result) $errors[] = 'Error while saving file';
+            } catch (Exception $e) {
+                $errors[] = 'Error while saving file';
+            }
+        }
+
+        if (!empty($errors)) {
+            $_SESSION['errors'] = implode(',', $errors);
+            header("Location: /library");
+            exit();
+        }
+
+        View::render('upload');
     }
 
     /**
@@ -36,12 +77,11 @@ class AppController
         if (!empty($_POST)) {
             $this->user = (new Auth())->login();
         }
-
         if (!empty($this->user)) {
             header("Location: /");
             exit();
         }
-        include($this->_viewsFolder . 'login.php');
+        View::render('login');
     }
 
     /**
@@ -52,12 +92,5 @@ class AppController
         (new Auth())->logout();
         header("Location: /");
         exit();
-    }
-
-
-    public function error404()
-    {
-        header("HTTP/1.0 404 Not Found");
-        include($this->_viewsFolder . '404.php');
     }
 }
