@@ -1,6 +1,8 @@
 # book-app
 Test APP for Petabyte
 See production here: http://book.gregzorb.info:8080/
+Login: user@domain.ltd
+Password: teSt#paSSw0rd
 
 ### Install ###
 * docker-compose up -d
@@ -10,9 +12,8 @@ See production here: http://book.gregzorb.info:8080/
 * Upload file in library
 * sudo docker exec -i book_php sh -c "php app/Console/console.php process-book"
 
-
 # Task 2. Archive logs
 sudo docker exec -i book_php sh -c "php app/Console/console.php seed-logs && php app/Console/console.php archive-logs"
 
 # Task 3. Register New User
-sudo docker exec -i book_php sh -c "php app/Console/console.php add-user username email@domain.ltd testpassword"
+sudo docker exec -i book_php sh -c "php app/Console/console.php add-user username user@domain.ltd teSt#paSSw0rd"
