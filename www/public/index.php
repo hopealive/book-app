@@ -13,9 +13,15 @@ new Database();
 $controller = new AppController();
 $action = str_replace('/', '', $_SERVER['REQUEST_URI']);
 
+
 if(strpos($action, '?') !== false) {
     $request = explode('?', $action);
     $action = $request[0] ?? 'index';
+}
+
+if($action == 401) {
+    (new ErrorsController())->error401();
+    exit;
 }
 
 if (empty($action)) $action = 'index';
