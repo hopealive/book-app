@@ -32,8 +32,8 @@ class Auth
                 throw new UserException('Wrong password');
             }
             $_SESSION['userId'] = $userId;
-        } catch (Exception $e) {
-            $_SESSION['error'] = $e->getMessage();
+        } catch (UserException $e) {
+            $_SESSION['errors'] = $e->getMessage();
         }
         return $user;
     }

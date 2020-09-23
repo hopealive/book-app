@@ -8,6 +8,7 @@ use App\Repositories\UserRepository;
 use App\Middleware\Auth;
 use App\Lib\View;
 use Exception;
+use App\Exceptions\UserException;
 
 class AppController
 {
@@ -105,7 +106,9 @@ class AppController
             header("Location: /");
             exit();
         }
-        View::render('login');
+        $errors = $_SESSION['errors'] ?? '';
+        $_SESSION['errors'] = '';
+        View::render('login', compact('errors'));
     }
 
     /**
