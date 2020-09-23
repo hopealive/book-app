@@ -35,6 +35,22 @@ class AppController
         View::render('library', compact('books', 'errors'));
     }
 
+    public function read()
+    {
+        $id = $_GET['id'] ?? 0;
+        if (empty($id) || empty($this->user)) {
+            header("Location: /401");
+            exit();
+        }
+        $books = Book::where('user_id', $this->user['id'])->get();
+        $book = $books->find($id);
+        if(empty($book)){
+            header("Location: /401");
+            exit();
+        }
+        View::render('library', compact('books', 'book'));
+    }
+
     /**
      * Save and process upload file
      */
@@ -57,6 +73,14 @@ class AppController
                 if (!$result) $errors[] = 'Error while saving file';
             } catch (Exception $e) {
                 $errors[] = 'Error while saving file';
+            }
+            if(empty($errors)){
+                Book::firstOrCreate([
+                    'user_id' => $this->user['id'],
+                    'name' => $bookFile->getName(),
+                    'filename' => $bookFile->getFileName(),
+                    'status' => Book::BOOK_STATUS_WAITING_START,
+                ]);
             }
         }
 

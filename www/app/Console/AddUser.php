@@ -21,7 +21,7 @@ class AddUser
     /**
      * Store new user
      */
-    public function register()
+    public function handle()
     {
         $repository = new UserRepository;
         $id = $repository->getUserIdByEmail($this->_email);

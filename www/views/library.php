@@ -43,15 +43,24 @@
 
             <?php if ($books->count()) : ?>
                 <div class="list-group col-md-9">
-                    <?php foreach ($books as $book) : ?>
-                        <a href="/read/<?= $book->id ?>" class="list-group-item list-group-item-action list-group-item-info">
-                            <?= $book->name ?>
-                        </a>
+                    <?php foreach ($books as $item) : ?>
+                        <div class="list-group-item list-group-item-action">
+                            <a href="/read?id=<?= (int)$item->id ?>">
+                                <?= $item->name ?>
+                            </a>
+                            <span class="alert alert-warning float-right"><?= $item->status ?></span>
+                        </div>
+
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
-
         </section>
+
+        <?php if(!empty($book)): ?>
+        <section id="reader" name="reader" class="mb-4 bg-light">
+            <h2><?= $book->name ?></h2>
+        </section>
+        <?php endif; ?>
 
         <section id="upload" name="upload" class="mb-4">
             <h2>Upload Book</h2>

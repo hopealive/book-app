@@ -12,6 +12,12 @@ new Database();
 
 $controller = new AppController();
 $action = str_replace('/', '', $_SERVER['REQUEST_URI']);
+
+if(strpos($action, '?') !== false) {
+    $request = explode('?', $action);
+    $action = $request[0] ?? 'index';
+}
+
 if (empty($action)) $action = 'index';
 if (!empty($action) && preg_match("/[^a-z0-9-]/i", $action)) {
     (new ErrorsController())->error404();

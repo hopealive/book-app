@@ -7,6 +7,7 @@ use Exception;
 class BookFile
 {
     private $_name = "",
+        $_fileName = "",
         $fileData = [];
 
     public function __construct(array $fileData)
@@ -17,6 +18,10 @@ class BookFile
 
     public function getName(){
         return $this->_name;
+    }
+
+    public function getFileName(){
+        return $this->_fileName;
     }
 
     public function validate() : array
@@ -32,10 +37,10 @@ class BookFile
 
     public function save() : bool
     {
-
         try {
             $uploadDir = __DIR__.'/../../storage/books/';
-            $uploadFile = $uploadDir . md5($this->fileData['name']).'.txt';
+            $this->_fileName = md5( date("Ymhis"). $this->fileData['name']).'.txt';
+            $uploadFile = $uploadDir . $this->_fileName;
             $result = move_uploaded_file($this->fileData['tmp_name'], $uploadFile);
             if(!$result) return false;
         } catch (Exception $e){
